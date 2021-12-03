@@ -49,53 +49,34 @@ extension AOC_2021 {
             do {
                 let data = try String(contentsOfFile: path, encoding: .utf8)
                 let myStringsOriginalTemp = data.components(separatedBy: .newlines)
-                let myStringsOriginal = myStringsOriginalTemp.dropLast()
-                var myStrings = myStringsOriginal
+                let myStringsOriginal = Array(myStringsOriginalTemp.dropLast())
                 
-                // Lets do a big assumption and assume myStrings are all the same length
-                let numBits = myStrings[0].count
-                print(numBits)
-                
-                var o2 = 0
-                var co2 = 0
-                
-                for position in 0..<numBits {
-                    var positionBit1Count = 0
-                    myStrings.forEach { input in
-                        positionBit1Count += input[position] == "1" ? 1 : 0
-                    }
+                func findRating(input: [String], comparisonFunction: (Int, Int) -> Bool) -> Int? {
+                    // Lets do a big assumption and assume myStrings are all the same length
+                    var inputStrings = input
+                    let numBits = input[0].count
                     
-                    let symbolToKeep: Character = positionBit1Count >= (myStrings.count - positionBit1Count) ? "1" : "0"
-                    myStrings.removeAll {
-                        $0[position] == symbolToKeep
+                    for position in 0..<numBits {
+                        var positionBit1Count = 0
+                        inputStrings.forEach {
+                            positionBit1Count += $0[position] == "1" ? 1 : 0
+                        }
+                        
+                        let symbolToKeep: Character = comparisonFunction(positionBit1Count, (inputStrings.count - positionBit1Count)) ? "1" : "0"
+                        inputStrings.removeAll {
+                            $0[position] == symbolToKeep
+                        }
+                        
+                        if inputStrings.count == 1 {
+                            return Int(inputStrings.first!, radix: 2)
+                        }
                     }
-                    
-                    if myStrings.count == 1 {
-                        print("Found it \(myStrings.first!)")
-                        o2 = Int(myStrings.first!, radix: 2)!
-                        break
-                    }
+                    return nil
                 }
                 
-                myStrings = myStringsOriginal
-                // Shitty code duplication hey ho
-                for position in 0..<numBits {
-                    var positionBit1Count = 0
-                    myStrings.forEach { input in
-                        positionBit1Count += input[position] == "1" ? 1 : 0
-                    }
-                    
-                    let symbolToKeep: Character = positionBit1Count < (myStrings.count - positionBit1Count) ? "1" : "0"
-                    myStrings.removeAll {
-                        $0[position] == symbolToKeep
-                    }
-                    
-                    if myStrings.count == 1 {
-                        print("Found it \(myStrings.first!)")
-                        co2 = Int(myStrings.first!, radix: 2)!
-                        break
-                    }
-                }
+                let o2 = findRating(input: myStringsOriginal, comparisonFunction: >=)!
+                let co2 = findRating(input: myStringsOriginal, comparisonFunction: <)!
+                
                 print("o2: \(o2), co2: \(co2), multiplied: \(o2 * co2)")
                 
             } catch {
