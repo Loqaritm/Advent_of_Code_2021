@@ -82,14 +82,29 @@ extension AOC_2021 {
                 }
             
                 for pick in picks {
+                    print("Pick: \(pick)")
                     for (n,_) in boards.enumerated() {
                         boards[n].selectNum(selectedValue: pick)
-                        if boards[n].isWinning {
-                            print("Board wins! num \(n)")
-                            print("Sum of not selected: \(boards[n].sumOfNotSelected)")
-                            print("winning pick: \(pick), multiplied result: \(Int(pick)! * boards[n].sumOfNotSelected)")
-                            return
-                        }
+//                        Part 1:
+//                        if boards[n].isWinning {
+//                            print("Sum of not selected: \(boards[n].sumOfNotSelected)")
+//                            print("winning pick: \(pick), multiplied result: \(Int(pick)! * boards[n].sumOfNotSelected)")
+//                            return
+//                        }
+                    }
+                    var lastBoard = Board(data: [[]])
+                    if boards.count == 1 {
+                        print("We have the last board")
+                        lastBoard = boards[0]
+                    }
+                    
+                    boards.removeAll {
+                        $0.isWinning
+                    }
+                    if boards.count == 0 {
+                        print("Sum of not selected: \(lastBoard.sumOfNotSelected)")
+                        print("winning pick: \(pick), multiplied result: \(Int(pick)! * lastBoard.sumOfNotSelected)")
+                        return
                     }
                 }
             } catch {
