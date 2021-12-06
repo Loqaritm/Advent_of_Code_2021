@@ -19,10 +19,12 @@ extension AOC_2021 {
                 }
                 
                 let reproductionInterval = 6
+                let downtimeBetweenBeingBornAndEnteringReproductionCycle = 2
+                
                 // Lets do it like that:
                 // There are days of reproduction cycle with the amount of fish in them
                 // cycle days are days until the cycle finishes (so they are reversed)
-                var cycleDaysWithAmountOfFish = Array(repeating: 0, count: reproductionInterval + 2 + 1)
+                var cycleDaysWithAmountOfFish = Array(repeating: 0, count: reproductionInterval + downtimeBetweenBeingBornAndEnteringReproductionCycle + 1)
                 
                 fishies.forEach{
                     cycleDaysWithAmountOfFish[$0.age] += 1
@@ -35,7 +37,7 @@ extension AOC_2021 {
                     
                     let amountReproducing = cycleDaysWithAmountOfFish.first!
                     cycleDaysWithAmountOfFish.removeFirst()
-                    cycleDaysWithAmountOfFish.append(amountReproducing)
+                    cycleDaysWithAmountOfFish.append(amountReproducing) // Here new fish are born
                     cycleDaysWithAmountOfFish[reproductionInterval] += amountReproducing
                 }
                 
