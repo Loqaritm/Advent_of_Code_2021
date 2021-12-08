@@ -3,7 +3,7 @@ import Foundation
 extension AOC_2021 {
     public static func day7() {
         if let path = Bundle.main.path(forResource: "input_day7", ofType: "txt") {
-            let data = try! String(contentsOfFile: path, encoding: .utf8)        
+            let data = try! String(contentsOfFile: path, encoding: .utf8)
             let crabPositions: [Int] = data.components(separatedBy: ",").compactMap {
                 if let value = Int($0.trimmingCharacters(in: .newlines)) {
                     return value
