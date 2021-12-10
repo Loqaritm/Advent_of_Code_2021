@@ -16,9 +16,6 @@ extension AOC_2021 {
         if let path = Bundle.main.path(forResource: "input_day10", ofType: "txt") {
             let data = try! String(contentsOfFile: path, encoding: .utf8)
             
-//            let data = "{([(<{}[<>[]}>{[]{[(<()>"
-//            let data = "[({(<(())[]>[[{[]{<()<>>"
-            
             let lines: [String] = data.components(separatedBy: .newlines).compactMap {
                 if $0.count == 0 { return nil }
                 return $0
@@ -40,17 +37,17 @@ extension AOC_2021 {
                                                                 "{":"}",
                                                                 "<":">"]
             
-            let scoringDictionary: [Character: Int] = [")": 3,
-                                                    "]": 57,
-                                                    "}": 1197,
-                                                    ">": 25137]
+//            let scoringDictionary: [Character: Int] = [")": 3,
+//                                                    "]": 57,
+//                                                    "}": 1197,
+//                                                    ">": 25137]
             
             let part2scoringDictionary: [Character: Int] = [")": 1,
                                                             "]": 2,
                                                             "}": 3,
                                                             ">": 4]
 
-            var score: [Int] = []
+            var scores: [Int] = []
             
             lines.forEach { line in
                 var stack = CharacterStack()
@@ -71,15 +68,20 @@ extension AOC_2021 {
                 if !isLineCorrupted {
                     // means line is not closed properly
                     
+                    var scoreForThisLine = 0
                     var helperString = ""
                     while stack.count != 0 {
-                        helperString = helperString + String(openingToClosingDictionary[stack.pop()]!)
+                        let missingSymbol = openingToClosingDictionary[stack.pop()]!
+                        helperString += String(missingSymbol)
+                        scoreForThisLine *= 5
+                        scoreForThisLine += part2scoringDictionary[missingSymbol]!
                     }
-                    print("Not closed symbols: \(helperString)")
+                    print("Not closed symbols: \(helperString), score for this line is: \(scoreForThisLine)")
+                    scores.append(scoreForThisLine)
                 }
             }
-            print("Score is: \(score)")
             
+            print("Score is: \(scores.sorted()[scores.count / 2])")
         }
     }
 }
