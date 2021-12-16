@@ -2,23 +2,27 @@ import Foundation
 
 extension AOC_2021 {
     public static func day15() {
-        struct Vertex: Identifiable {
-            var id: Int
+        class Vertex: Identifiable {
+            internal init(id: Int = 0, weight: Int = 0) {
+                self.id = id
+                self.weight = weight
+            }
             
-            var weight: Int
-            var pathLength: Int = Int.max
-            var visited = false
-            var nextVertexIds: [Int] = []
+            public var id: Int
+            
+            public var weight: Int = 0
+            public var pathLength: Int = Int.max
+            public var nextVertices: [Vertex] = []
         }
         
         if let path = Bundle.main.path(forResource: "input_day15", ofType: "txt") {
             let data = try! String(contentsOfFile: path, encoding: .utf8)
             
             var i = 0
-            let tempVertices: [[Vertex]] = Array(0..<2).flatMap{ tileValueOffsetX in
+            let tempVertices: [[Vertex]] = Array(0..<5).flatMap{ tileValueOffsetX in
                 data.components(separatedBy: .newlines).compactMap { line in
                     if line.isEmpty { return nil }
-                    return Array(0..<1).flatMap { tileValueOffsetY in
+                    return Array(0..<5).flatMap { tileValueOffsetY in
                         return line.compactMap {
                             i += 1
                             return Vertex(id: i, weight: (Int(String($0))!-1 + tileValueOffsetY + tileValueOffsetX) % 9 + 1)
@@ -31,18 +35,18 @@ extension AOC_2021 {
             // link all vertices with proper edges
             for i in 0..<tempVertices.count {
                 for j in 0..<tempVertices[i].count {
-                    var vertexToAppend = tempVertices[i][j]
+                    let vertexToAppend = tempVertices[i][j]
                     if i < tempVertices.count - 1 {
-                        vertexToAppend.nextVertexIds.append(tempVertices[i+1][j].id)
+                        vertexToAppend.nextVertices.append(tempVertices[i+1][j])
                     }
                     if i > 0 {
-                        vertexToAppend.nextVertexIds.append(tempVertices[i-1][j].id)
+                        vertexToAppend.nextVertices.append(tempVertices[i-1][j])
                     }
                     if j < tempVertices[i].count - 1 {
-                        vertexToAppend.nextVertexIds.append(tempVertices[i][j+1].id)
+                        vertexToAppend.nextVertices.append(tempVertices[i][j+1])
                     }
                     if j > 0 {
-                        vertexToAppend.nextVertexIds.append(tempVertices[i][j-1].id)
+                        vertexToAppend.nextVertices.append(tempVertices[i][j-1])
                     }
                     vertices.append(vertexToAppend)
                 }
@@ -58,7 +62,7 @@ extension AOC_2021 {
             while !unvisitedVertices.isEmpty {
                 // get minimum whole path as current vertex
                 let currentVertex = unvisitedVertices.removeFirst()
-                print("working on \(currentVertex)")
+//                print("working on \(currentVertex)")
                 vertices = vertices.filter{$0.id != currentVertex.id}
 //                vertices.removeAll(where: {$0.id == currentVertex.id})
                 if currentVertex.id == endVertex.id {
@@ -66,16 +70,16 @@ extension AOC_2021 {
                     return
                 }
                 
-                for nextVertexId in currentVertex.nextVertexIds {
-                    if let indexOfTargetVertex = vertices.firstIndex(where: {return $0.id == nextVertexId}) {
-                        let distance = currentVertex.pathLength + vertices[indexOfTargetVertex].weight
+                for nextVertex in currentVertex.nextVertices {
+//                    if let indexOfTargetVertex = vertices.firstIndex(where: {return $0.id == nextVertexId}) {
+                        let distance = currentVertex.pathLength + nextVertex.weight
                         
-                        if distance < vertices[indexOfTargetVertex].pathLength {
-                            vertices[indexOfTargetVertex].pathLength = distance
+                        if distance < nextVertex.pathLength {
+                            nextVertex.pathLength = distance
                             
-                            unvisitedVertices.insert(vertices[indexOfTargetVertex], at: unvisitedVertices.firstIndex(where: {$0.pathLength > vertices[indexOfTargetVertex].pathLength}) ?? unvisitedVertices.endIndex)
+                            unvisitedVertices.insert(nextVertex, at: unvisitedVertices.firstIndex(where: {$0.pathLength > nextVertex.pathLength}) ?? unvisitedVertices.endIndex)
                         }
-                    }
+//                    }
                 }
             }
             print("Haven't reached the destination. This should not happen")
