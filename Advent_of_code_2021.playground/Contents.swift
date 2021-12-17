@@ -16,7 +16,7 @@ let start = DispatchTime.now()
 //AOC_2021.day13() // part2: RPCKFBLR
 //AOC_2021.day14() // part2: 3692219987038
 //AOC_2021.day15() // part1: 604 / time: 17.4455595 seconds // 5x5 - 2907 / time: 3511s
-AOC_2021.day16()
+AOC_2021_day16.run()
 
 
 

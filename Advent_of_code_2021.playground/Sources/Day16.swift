@@ -1,127 +1,135 @@
 import Foundation
 
-protocol GeneralPacket {
-    
+enum PacketType: Int {
+    case sum = 0
+    case product = 1
+    case minimum = 2
+    case maximum = 3
+    case literal = 4
+    case greaterThan = 5
+    case lessThan = 6
+    case equals = 7
 }
 
-extension AOC_2021 {
-    public static func day16() {
-        struct OperationPacket: GeneralPacket {
-            var version: Int
-            var type: Int // 6 is operator type
-            
-            var subPackets: [GeneralPacket] = []
+protocol GeneralPacket {
+    var version: Int {get set}
+    var type: PacketType {get set}
+    
+    var computedContainedValue: Int { get }
+}
+
+public struct AOC_2021_day16 {
+    private struct OperationPacket: GeneralPacket {
+        var version: Int
+        var type: PacketType
+
+        var subPackets: [GeneralPacket] = []
+        
+        var computedContainedValue: Int {
+            switch self.type {
+            case .sum: return subPackets.reduce(0, {$0 + $1.computedContainedValue})
+            case .product: return subPackets.reduce(1, {$0 * $1.computedContainedValue})
+            case .minimum: return subPackets.compactMap{$0.computedContainedValue}.min()!
+            case .maximum: return subPackets.compactMap{$0.computedContainedValue}.max()!
+            case .equals: return subPackets[0].computedContainedValue == subPackets[1].computedContainedValue ? 1 : 0
+            case .greaterThan: return subPackets[0].computedContainedValue > subPackets[1].computedContainedValue ? 1 : 0
+            case .lessThan: return subPackets[0].computedContainedValue < subPackets[1].computedContainedValue ? 1 : 0
+            default:
+                print("ERROR: This should never happen!")
+                return -1
+            }
+        }
+    }
+    private struct ValuePacket: GeneralPacket {
+        var version: Int
+        var type: PacketType
+        var value: Int
+        
+        var computedContainedValue: Int { value }
+    }
+    
+    private struct BinaryData {
+        var index: Int
+        var maxIndex: Int { data.count - 1 }
+        var data: String
+        
+        mutating func getBit() -> String {
+            let prevIndex = index
+            index += 1
+            return String(data[prevIndex])
         }
         
-        struct ValuePacket: GeneralPacket {
-            var version: Int
-            var type: Int // 4 is value type
-            
-            var value: Int
+        mutating func getNBits(n: Int) -> String {
+            return (0..<n).compactMap{_ in getBit() }.reduce("", +)
         }
+    }
+    
+    static private func parseLiteralValue(binaryData: inout BinaryData) -> Int {
+        var firstBitOfValue = ""
+        var readNumber = ""
+        repeat {
+            firstBitOfValue = binaryData.getBit()
+            readNumber += binaryData.getNBits(n: 4)
+        } while firstBitOfValue != "0"
         
-        
+        return Int(readNumber, radix: 2)!
+    }
+    
+    // Definitely not ideal functional paradigm - we will be modifying the data here, but this is easiest
+    static private func parsePacketData(binaryData: inout BinaryData, breakAfterSubpacketNum: Int?, breakAfterSubpacketBits: Int?) -> [GeneralPacket] {
+        var returnValue: [GeneralPacket] = []
+        var parsedPackets = 0
+        let indexAtInput = binaryData.index
+        while (breakAfterSubpacketNum == nil || parsedPackets < breakAfterSubpacketNum!)
+                && (breakAfterSubpacketBits == nil || binaryData.index < indexAtInput + breakAfterSubpacketBits!)
+        {
+            let version = Int(binaryData.getNBits(n: 3), radix: 2)!
+            let type = Int(binaryData.getNBits(n: 3), radix: 2)!
+
+            switch type {
+            case 4: // Literal value
+                let parsedValue = parseLiteralValue(binaryData: &binaryData)
+                returnValue.append(ValuePacket(version: version, type: PacketType(rawValue: 4)!, value: parsedValue))
+                
+            default: // Operator packet, reparse
+                let lengthTypeIdBit = binaryData.getBit()
+                if lengthTypeIdBit == "0" {
+                    // by num bits
+                    let numberToBreakAfter = Int(binaryData.getNBits(n: 15), radix: 2)!
+                    let parsedInnerPackets = parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: nil, breakAfterSubpacketBits: numberToBreakAfter)
+                    returnValue.append(OperationPacket(version: version, type: PacketType(rawValue: type)!, subPackets: parsedInnerPackets))
+                } else {
+                    let numberToBreakAfter = Int(binaryData.getNBits(n: 11), radix: 2)!
+                    let parsedInnerPackets = parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: numberToBreakAfter, breakAfterSubpacketBits: nil)
+                    returnValue.append(OperationPacket(version: version, type: PacketType(rawValue: type)!, subPackets: parsedInnerPackets))
+                }
+            }
+            
+            parsedPackets += 1
+        }
+        return returnValue
+    }
+    
+    public static func run() {
         if let path = Bundle.main.path(forResource: "input_day16", ofType: "txt") {
             // Remember to drop the newline at the end
             let hexData = try! String(contentsOfFile: path, encoding: .utf8).components(separatedBy: .newlines).dropLast().reduce("", +)
-//            let hexData = "A0016C880162017C3686B18A3D4780"
-            var binaryData: String = hexData.compactMap{$0.hexToBinary}.reduce("", +)
-//            var binaryData = "110100101111111000101000"
+            let binaryDataString: String = hexData.compactMap{$0.hexToBinary}.reduce("", +)
             
-            var sumOfVersions = 0
-            
-            func parsePacketData(binaryData: inout String, breakAfterSubpacketNum: Int?, breakAfterSubpacketBits: Int?) -> [GeneralPacket] {
-                var returnValue: [GeneralPacket] = []
-                var parsedBits = 0
-                var parsedPackets = 0
-                var shouldBreak = false
-                while !shouldBreak {
-                    print(binaryData)
-                    print(binaryData.count)
-                    let version = Int(binaryData.prefix(3), radix: 2)!
-                    sumOfVersions += version
-                    print("Version: \(version)")
-                    binaryData = String(binaryData.dropFirst(3))
-                    
-                    let type = Int(binaryData.prefix(3), radix: 2)!
-                    binaryData = String(binaryData.dropFirst(3))
-                    
-                    parsedBits += 6
-                    
-                    switch type {
-                    case 4: // Literal value
-                        print(binaryData)
-
-                        var firstBitOfValue = ""
-                        var readNumber = ""
-                        repeat {
-                            firstBitOfValue = String(binaryData.prefix(1))
-                            readNumber += binaryData[binaryData.index(binaryData.startIndex, offsetBy: 1)..<binaryData.index(binaryData.startIndex, offsetBy: 5)]
-                            binaryData = String(binaryData.dropFirst(5))
-                            parsedBits += 5
-                        } while firstBitOfValue != "0"
-                        
-                        print("matched literal value")
-                        returnValue.append(ValuePacket(version: version, type: 4, value: Int(readNumber, radix: 2)!))
-                        
-                    default: // Operator packet, reparse
-                        print(binaryData)
-                        
-                        let lengthTypeIdBit = binaryData.prefix(1)
-                        binaryData = String(binaryData.dropFirst(1))
-                        let lengthTypeBitNumber = lengthTypeIdBit == "0" ? 15 : 11
-                        let lengthTypeNumber = Int(binaryData.prefix(lengthTypeBitNumber), radix: 2)!
-                        binaryData = String(binaryData.dropFirst(lengthTypeBitNumber))
-                        parsedBits += 1 + lengthTypeBitNumber
-                        
-                        let bitsBefore = binaryData.count
-                        if lengthTypeIdBit == "0" {
-                            // 0 is num bits
-                            print("Found 0, going for breakAfterSubpacketBits: \(lengthTypeNumber)")
-                            returnValue.append(contentsOf: parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: nil, breakAfterSubpacketBits: lengthTypeNumber))
-                        } else {
-                            // 1 is num packet
-                            print("Found 0, going for breakAfterSubpacketNum: \(lengthTypeNumber)")
-                            returnValue.append(contentsOf: parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: lengthTypeNumber, breakAfterSubpacketBits: nil))
-                        }
-                        let bitsAfter = binaryData.count
-                        
-                        print("bits after: \(bitsAfter), bits before: \(bitsBefore)")
-                        parsedBits += bitsBefore - bitsAfter
-                    }
-                    
-                    parsedPackets += 1
-                    
-                    print("Parsed packets are: \(parsedPackets), break after is: \(breakAfterSubpacketNum ?? 666)")
-                    print("Parsed bits are: \(parsedBits), break after is \(breakAfterSubpacketBits ?? 666)")
-                    
-                    if breakAfterSubpacketNum != nil && parsedPackets >= breakAfterSubpacketNum! {
-                        shouldBreak = true
-                    } else if breakAfterSubpacketBits != nil && parsedBits >= breakAfterSubpacketBits! {
-                        shouldBreak = true
-                    }
-                }
-//                print("return value is: \(returnValue)")
-                return returnValue
-            }
-            
+            var binaryData = BinaryData(index: 0, data: binaryDataString)
             let parsed = parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: 1, breakAfterSubpacketBits: nil)
-            print(parsed)
-            print("sum of versions: \(sumOfVersions)")
+//            print(parsed)
+            print("ComputedValue: \(parsed[0].computedContainedValue)")
         }
     }
 }
 
 extension Character {
     var hexToBinary: String {
-//        print("hex: \(self)")
         var binary = String(Int(String(self), radix: 16)!, radix: 2)
-//        print("binary: \(binary)")
         if binary.count < 4 {
-//            print("dupa: \(binary.count) \(4 - binary.count)")
             binary = String(repeating: "0", count: 4 - binary.count) + binary
         }
-//        print("binary dupa: \(binary)")
         return binary
     }
 }
