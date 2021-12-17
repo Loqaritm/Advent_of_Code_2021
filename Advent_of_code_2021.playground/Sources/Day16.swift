@@ -75,7 +75,7 @@ public struct AOC_2021_day16 {
         return Int(readNumber, radix: 2)!
     }
     
-    // Definitely not ideal functional paradigm - we will be modifying the data here, but this is easiest
+    // Definitely not ideal functional paradigm - we will be modifying the data here, but this is easiest way
     static private func parsePacketData(binaryData: inout BinaryData, breakAfterSubpacketNum: Int?, breakAfterSubpacketBits: Int?) -> [GeneralPacket] {
         var returnValue: [GeneralPacket] = []
         var parsedPackets = 0
@@ -113,14 +113,20 @@ public struct AOC_2021_day16 {
     public static func run() {
         if let path = Bundle.main.path(forResource: "input_day16", ofType: "txt") {
             // Remember to drop the newline at the end
-            let hexData = try! String(contentsOfFile: path, encoding: .utf8).components(separatedBy: .newlines).dropLast().reduce("", +)
-            let binaryDataString: String = hexData.compactMap{$0.hexToBinary}.reduce("", +)
-            
-            var binaryData = BinaryData(index: 0, data: binaryDataString)
-            let parsed = parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: 1, breakAfterSubpacketBits: nil)
-//            print(parsed)
-            print("ComputedValue: \(parsed[0].computedContainedValue)")
+            let stringData = try! String(contentsOfFile: path, encoding: .utf8)
+            let computedValue = runInternal(inputData: stringData)
+            print("ComputedValue: \(computedValue)")
         }
+    }
+    
+    internal static func runInternal(inputData: String) -> Int {
+        let hexData = inputData.components(separatedBy: .newlines).compactMap{$0.isEmpty ? nil : $0}.reduce("", +)
+        let binaryDataString: String = hexData.compactMap{$0.hexToBinary}.reduce("", +)
+        
+        var binaryData = BinaryData(index: 0, data: binaryDataString)
+        let parsed = parsePacketData(binaryData: &binaryData, breakAfterSubpacketNum: 1, breakAfterSubpacketBits: nil)
+//            print(parsed)
+        return parsed[0].computedContainedValue
     }
 }
 
@@ -131,5 +137,25 @@ extension Character {
             binary = String(repeating: "0", count: 4 - binary.count) + binary
         }
         return binary
+    }
+}
+
+
+// MARK: Unit tests
+import XCTest
+
+public class Day16Tests: XCTestCase {
+    func testDay16() {
+        let InputDataDictionary: [String:Int] = ["C200B40A82":3,
+                                                 "04005AC33890":54,
+                                                 "880086C3E88112":7,
+                                                 "CE00C43D881120":9,
+                                                 "D8005AC2A8F0":1,
+                                                 "F600BC2D8F":0,
+                                                 "9C005AC2F8F0":0,
+                                                 "9C0141080250320F1802104A08":1]
+        InputDataDictionary.forEach { key, value in
+            XCTAssertEqual(AOC_2021_day16.runInternal(inputData: key), value)
+        }
     }
 }

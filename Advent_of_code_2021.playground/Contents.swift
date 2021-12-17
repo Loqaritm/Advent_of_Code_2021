@@ -1,6 +1,8 @@
 import Foundation
 let start = DispatchTime.now()
 
+Day16Tests.defaultTestSuite.run()
+
 
 //AOC_2021.day1()
 //AOC_2021.day2_part1()
