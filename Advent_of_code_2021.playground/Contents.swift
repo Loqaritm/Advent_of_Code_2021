@@ -2,7 +2,7 @@ import Foundation
 let start = DispatchTime.now()
 
 //Day16Tests.defaultTestSuite.run()
-
+Day18Tests.defaultTestSuite.run()
 
 //AOC_2021.day1()
 //AOC_2021.day2_part1()
@@ -19,7 +19,9 @@ let start = DispatchTime.now()
 //AOC_2021.day14() // part2: 3692219987038
 //AOC_2021.day15() // part1: 604 / time: 17.4455595 seconds // 5x5 - 2907 / time: 3511s
 //AOC_2021_day16.run()
-AOC_2021.day17() // 6670 too low
+//AOC_2021.day17()
+//AOC_2021_day18.run() // 4008
+AOC_2021_day18.runPart2() // 4667
 
 
 
