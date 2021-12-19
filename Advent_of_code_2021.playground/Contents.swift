@@ -2,7 +2,8 @@ import Foundation
 let start = DispatchTime.now()
 
 //Day16Tests.defaultTestSuite.run()
-Day18Tests.defaultTestSuite.run()
+//Day18Tests.defaultTestSuite.run()
+Day19Tests.defaultTestSuite.run()
 
 //AOC_2021.day1()
 //AOC_2021.day2_part1()
@@ -21,7 +22,7 @@ Day18Tests.defaultTestSuite.run()
 //AOC_2021_day16.run()
 //AOC_2021.day17()
 //AOC_2021_day18.run() // 4008
-AOC_2021_day18.runPart2() // 4667
+//AOC_2021_day18.runPart2() // 4667
 
 
 
