@@ -4,6 +4,8 @@ let start = DispatchTime.now()
 //Day16Tests.defaultTestSuite.run()
 //Day18Tests.defaultTestSuite.run()
 //Day19Tests.defaultTestSuite.run()
+Day20Tests.defaultTestSuite.run()
+
 
 //AOC_2021.day1()
 //AOC_2021.day2_part1()
@@ -23,8 +25,8 @@ let start = DispatchTime.now()
 //AOC_2021.day17()
 //AOC_2021_day18.run() // 4008
 //AOC_2021_day18.runPart2() // 4667
-AOC_2021_Day19.run() // Had to run it on a separate terminal + compile with -O otherwise it took too long: res = 483 // part 2: 14804
-
+//AOC_2021_Day19.run() // Had to run it on a separate terminal + compile with -O otherwise it took too long: res = 483 // part 2: 14804
+AOC_2021_Day20.run() // 4964 // part2: 13202
 
 let end = DispatchTime.now()
 let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds // <<<<< Difference in nano seconds (UInt64)
