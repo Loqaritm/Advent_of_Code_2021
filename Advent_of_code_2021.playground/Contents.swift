@@ -28,7 +28,8 @@ Day21Tests.defaultTestSuite.run()
 //AOC_2021_day18.runPart2() // 4667
 //AOC_2021_Day19.run() // Had to run it on a separate terminal + compile with -O otherwise it took too long: res = 483 // part 2: 14804
 //AOC_2021_Day20.run() // 4964 // part2: 13202
-AOC_2021_Day21.run()
+//AOC_2021_Day21.run()
+AOC_2021_Day21.runPart2() // 809953813657517 - whoa, memoization is really really powerful
 
 let end = DispatchTime.now()
 let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds // <<<<< Difference in nano seconds (UInt64)
