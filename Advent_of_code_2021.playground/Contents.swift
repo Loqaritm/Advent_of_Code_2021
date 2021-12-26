@@ -5,7 +5,9 @@ let start = DispatchTime.now()
 //Day18Tests.defaultTestSuite.run()
 //Day19Tests.defaultTestSuite.run()
 //Day20Tests.defaultTestSuite.run()
-Day21Tests.defaultTestSuite.run()
+//Day21Tests.defaultTestSuite.run()
+//Day22Tests.defaultTestSuite.run()
+Day25Tests.defaultTestSuite.run()
 
 
 //AOC_2021.day1()
@@ -29,7 +31,12 @@ Day21Tests.defaultTestSuite.run()
 //AOC_2021_Day19.run() // Had to run it on a separate terminal + compile with -O otherwise it took too long: res = 483 // part 2: 14804
 //AOC_2021_Day20.run() // 4964 // part2: 13202
 //AOC_2021_Day21.run()
-AOC_2021_Day21.runPart2() // 809953813657517 - whoa, memoization is really really powerful
+//AOC_2021_Day21.runPart2() // 809953813657517 - whoa, memoization is really really powerful
+//AOC_2021_Day22.run() // 570915
+
+//AOC_2021_Day24.run()
+AOC_2021_Day25.run()
+
 
 let end = DispatchTime.now()
 let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds // <<<<< Difference in nano seconds (UInt64)
