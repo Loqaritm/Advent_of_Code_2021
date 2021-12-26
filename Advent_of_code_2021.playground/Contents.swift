@@ -6,8 +6,8 @@ let start = DispatchTime.now()
 //Day19Tests.defaultTestSuite.run()
 //Day20Tests.defaultTestSuite.run()
 //Day21Tests.defaultTestSuite.run()
-//Day22Tests.defaultTestSuite.run()
-Day25Tests.defaultTestSuite.run()
+Day22Tests.defaultTestSuite.run()
+//Day25Tests.defaultTestSuite.run()
 
 
 //AOC_2021.day1()
@@ -35,7 +35,7 @@ Day25Tests.defaultTestSuite.run()
 //AOC_2021_Day22.run() // 570915
 
 //AOC_2021_Day24.run()
-AOC_2021_Day25.run()
+//AOC_2021_Day25.run()
 
 
 let end = DispatchTime.now()
