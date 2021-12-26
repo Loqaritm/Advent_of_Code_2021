@@ -6,7 +6,7 @@ let start = DispatchTime.now()
 //Day19Tests.defaultTestSuite.run()
 //Day20Tests.defaultTestSuite.run()
 //Day21Tests.defaultTestSuite.run()
-Day22Tests.defaultTestSuite.run()
+//Day22Tests.defaultTestSuite.run()
 //Day25Tests.defaultTestSuite.run()
 
 
@@ -32,7 +32,8 @@ Day22Tests.defaultTestSuite.run()
 //AOC_2021_Day20.run() // 4964 // part2: 13202
 //AOC_2021_Day21.run()
 //AOC_2021_Day21.runPart2() // 809953813657517 - whoa, memoization is really really powerful
-//AOC_2021_Day22.run() // 570915
+//AOC_2021_Day22.run_part1() // 570915
+AOC_2021_Day22.run_part2() // 1268313839428137
 
 //AOC_2021_Day24.run()
 //AOC_2021_Day25.run()

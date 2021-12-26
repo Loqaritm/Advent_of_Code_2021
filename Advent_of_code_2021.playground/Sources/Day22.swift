@@ -8,9 +8,9 @@ public struct AOC_2021_Day22 {
         }
         
         var instructionType: InstructionType
-        var x: ClosedRange<Int>
-        var y: ClosedRange<Int>
-        var z: ClosedRange<Int>
+        var x: Range<Int>
+        var y: Range<Int>
+        var z: Range<Int>
     }
     
     public struct Point: Hashable {
@@ -58,16 +58,16 @@ public struct AOC_2021_Day22 {
                     if i % 2 == 1
                         && (boundsIntArray[i] == trimSafe || boundsIntArray[i] == -trimSafe)
                         && boundsIntArray[i] == boundsIntArray[i-1] {
-                        // Ignore bounds where xm == xM
+                        // Ignore bounds where xm == xM == -50 or 50
                         return nil
                     }
                 }
             }
             
             return Instruction(instructionType: instructionType,
-                               x: boundsIntArray[0]...boundsIntArray[1],
-                               y: boundsIntArray[2]...boundsIntArray[3],
-                               z: boundsIntArray[4]...boundsIntArray[5])
+                               x: boundsIntArray[0]..<boundsIntArray[1] + 1,
+                               y: boundsIntArray[2]..<boundsIntArray[3] + 1,
+                               z: boundsIntArray[4]..<boundsIntArray[5] + 1)
         }
     }
     
@@ -75,30 +75,67 @@ public struct AOC_2021_Day22 {
         let instructions = parse(stringData: stringData, trim: trim)
 
         var reactor = Reactor()
+        
+        let sortedXpoints = Array(Set(instructions.flatMap({[$0.x.lowerBound, $0.x.upperBound]}))).sorted()
+        let sortedYpoints = Array(Set(instructions.flatMap({[$0.y.lowerBound, $0.y.upperBound]}))).sorted()
+        let sortedZpoints = Array(Set(instructions.flatMap({[$0.z.lowerBound, $0.z.upperBound]}))).sorted()
+        
+        print(sortedXpoints)
+        print(sortedYpoints)
+        print(sortedZpoints)
+        
+        let mappedXs: [Int: Int] = sortedXpoints.enumerated().reduce(into: [Int: Int](), { $0[$1.1] = $1.0 })
+        let mappedYs: [Int: Int] = sortedYpoints.enumerated().reduce(into: [Int: Int](), { $0[$1.1] = $1.0 })
+        let mappedZs: [Int: Int] = sortedZpoints.enumerated().reduce(into: [Int: Int](), { $0[$1.1] = $1.0 })
+        
+        print(mappedXs)
+        print(mappedYs)
+        print(mappedZs)
 
         instructions.enumerated().forEach { (n,instructionIn) in
             let instruction = instructionIn
-//            print("Step: \(n+1)/\(instructions.count)")
-            for x in instruction.x {
-                for y in instruction.y {
-                    for z in instruction.z {
-                        if instruction.instructionType == .on { reactor.cubes.insert(Point(x, y, z)) }
+            print("Step: \(n+1)/\(instructions.count)")
+            for x in mappedXs[instruction.x.lowerBound]!..<mappedXs[instruction.x.upperBound]! {
+                for y in mappedYs[instruction.y.lowerBound]!..<mappedYs[instruction.y.upperBound]! {
+                    for z in mappedZs[instruction.z.lowerBound]!..<mappedZs[instruction.z.upperBound]! {
+                        if instruction.instructionType == .on { reactor.cubes.insert(Point(x, y, z))/*; print("Inserting: \(Point(x,y,z))")*/ }
                         else { reactor.cubes.remove(Point(x, y, z)) }
                     }
                 }
             }
         }
         
-        return reactor.cubes.count
+        func computeTrueVolume(point: Point) -> Int {
+            if point.x == sortedXpoints.count - 1
+                || point.y == sortedYpoints.count - 1
+                || point.z == sortedZpoints.count - 1 {
+                return 0
+            }
+            let computed = (sortedXpoints[point.x + 1] - sortedXpoints[point.x])
+            * (sortedYpoints[point.y + 1] - sortedYpoints[point.y])
+            * (sortedZpoints[point.z + 1] - sortedZpoints[point.z])
+            
+            return computed
+        }
+        
+        return reactor.cubes.reduce(into: 0, { $0 += computeTrueVolume(point: $1) })
     }
     
-//    public static func run() {
-//        if let path = Bundle.main.path(forResource: "input_day22", ofType: "txt") {
-//            let stringData = try! String(contentsOfFile: path, encoding: .utf8)
-////            let cubeCount = AOC_2021_Day22.runInternal(stringData: stringData)
-////            print("Count of all cubes turned on: \(cubeCount)")
-//        }
-//    }
+    public static func run_part1() {
+        if let path = Bundle.main.path(forResource: "input_day22", ofType: "txt") {
+            let stringData = try! String(contentsOfFile: path, encoding: .utf8)
+            let cubeCount = AOC_2021_Day22.runInternal(stringData: stringData, trim: 50)
+            print("Count of all cubes turned on: \(cubeCount)")
+        }
+    }
+    
+    public static func run_part2() {
+        if let path = Bundle.main.path(forResource: "input_day22", ofType: "txt") {
+            let stringData = try! String(contentsOfFile: path, encoding: .utf8)
+            let cubeCount = AOC_2021_Day22.runInternal(stringData: stringData, trim: nil)
+            print("Count of all cubes for part 2: \(cubeCount)")
+        }
+    }
 }
 
 import XCTest
